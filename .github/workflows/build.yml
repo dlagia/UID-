@@ -5,18 +5,18 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:   # biar bisa dijalankan manual dari tab Actions
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest   # wajib Windows karena build.py hardcode windows-x86_64
+    runs-on: windows-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -24,8 +24,8 @@ jobs:
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r27c          # r27c = 27.3.13750724
-          add-to-path: true
+          ndk-version: r27c
+          add-to-path: false
 
       - name: Build module
         env:
@@ -40,3 +40,4 @@ jobs:
           path: |
             build/0.2.6/cq-uid-seccomp-0.2.6.zip
             build/0.2.6/cq-uid-seccomp-0.2.6.zip.sha256
+          if-no-files-found: error
