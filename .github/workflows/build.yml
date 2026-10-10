@@ -1,0 +1,42 @@
+name: Build UID Seccomp Module
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:   # biar bisa dijalankan manual dari tab Actions
+
+jobs:
+  build:
+    runs-on: windows-latest   # wajib Windows karena build.py hardcode windows-x86_64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Android NDK 27.3.13750724
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r27c          # r27c = 27.3.13750724
+          add-to-path: false
+
+      - name: Build module
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          python tools/uid-seccomp-module/build.py --module-only
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cq-uid-seccomp-0.2.6
+          path: |
+            build/0.2.6/cq-uid-seccomp-0.2.6.zip
+            build/0.2.6/cq-uid-seccomp-0.2.6.zip.sha256
